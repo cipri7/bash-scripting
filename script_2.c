@@ -23,7 +23,7 @@ void copy_file(const char *src, const char *dest) {
 
 void process_entry(const char *src_path, const char *dest_path) {
     struct stat st;
-    
+
     if (lstat(src_path, &st) == -1) {
         perror("lstat");
         exit(EXIT_FAILURE);
@@ -60,10 +60,17 @@ void process_entry(const char *src_path, const char *dest_path) {
         // Fișier obișnuit
         if (st.st_size < 500) {
             copy_file(src_path, dest_path);
+            /*
+            Operatorul & (și) este folosit pentru a aplica o operație de "și logic" între valorile drepturilor din st.st_mode
+            și o combinație de drepturi specificate în expresie.
+            (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) 
+            este o combinație de drepturi specificate care reprezintă drepturile de citire și scriere pentru proprietarul fișierului,
+            grupul fișierului și alți utilizatori (toți ceilalți).
+            */
             chmod(dest_path, st.st_mode & (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH));
             printf("Copie creată: %s\n", dest_path);
         } else {
-            symlink(src_path, dest_path);
+            link(src_path, dest_path);
             chmod(dest_path, st.st_mode);
             printf("Legătură simbolică creată: %s\n", dest_path);
         }
